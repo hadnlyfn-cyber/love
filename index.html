@@ -1,470 +1,107 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Карта наших сокровищ</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    
-    html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    body {
-      background: #0a0a0a;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .map-container {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      background: #000;
-    }
-
-    .map-image {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      user-select: none;
-      -webkit-user-drag: none;
-    }
-
-    .svg-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 10;
-    }
-
-    .marker {
-      position: absolute;
-      width: 50px;
-      height: 50px;
-      transform: translate(-50%, -50%);
-      cursor: pointer;
-      z-index: 20;
-      border: none;
-      background: none;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.2s ease;
-    }
-
-    .marker:hover {
-      transform: translate(-50%, -50%) scale(1.15);
-    }
-
-    .marker:focus {
-      outline: 3px solid rgba(255, 215, 0, 0.5);
-      border-radius: 50%;
-    }
-
-    .marker-pin {
-      width: 40px;
-      height: 40px;
-      background: radial-gradient(circle at 30% 30%, #ffd700, #cc9900);
-      border: 3px solid #8b5a00;
-      border-radius: 50%;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), inset -2px -2px 4px rgba(0, 0, 0, 0.3);
-      position: relative;
-      transition: box-shadow 0.2s ease;
-    }
-
-    .marker:hover .marker-pin {
-      box-shadow: 0 8px 20px rgba(255, 215, 0, 0.5), inset -2px -2px 4px rgba(0, 0, 0, 0.3);
-    }
-
-    .marker-pin::after {
-      content: '';
-      position: absolute;
-      bottom: -8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 4px;
-      height: 8px;
-      background: #8b5a00;
-      border-radius: 2px;
-    }
-
-    .marker-tooltip {
-      position: absolute;
-      bottom: 60px;
-      left: 50%;
-      transform: translateX(-50%) scale(0.8);
-      background: rgba(250, 240, 220, 0.95);
-      color: #2b1b0f;
-      padding: 10px 15px;
-      border-radius: 8px;
-      border: 2px solid #c8832f;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease, transform 0.2s ease;
-      z-index: 30;
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .marker:hover .marker-tooltip,
-    .marker:focus .marker-tooltip {
-      opacity: 1;
-      transform: translateX(-50%) scale(1);
-    }
-
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-
-    .modal-overlay.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .modal-content {
-      background: linear-gradient(135deg, #f5e6d3 0%, #e8d4b8 100%);
-      padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-      max-width: 600px;
-      width: 90%;
-      text-align: center;
-      transform: scale(0.85);
-      transition: transform 0.3s ease;
-      border: 3px solid #c8832f;
-      position: relative;
-    }
-
-    .modal-overlay.open .modal-content {
-      transform: scale(1);
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: #c8832f;
-      color: white;
-      border: none;
-      width: 35px;
-      height: 35px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s;
-    }
-
-    .modal-close:hover {
-      background: #a86820;
-    }
-
-    .modal-title {
-      color: #2b1b0f;
-      font-size: 28px;
-      margin-bottom: 15px;
-      font-weight: bold;
-    }
-
-    .modal-text {
-      color: #3b2b20;
-      font-size: 16px;
-      margin-bottom: 25px;
-      line-height: 1.6;
-    }
-
-    .modal-buttons {
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .modal-btn {
-      padding: 12px 25px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-
-    .modal-btn-primary {
-      background: linear-gradient(135deg, #c8832f, #a86820);
-      color: white;
-    }
-
-    .modal-btn-primary:hover {
-      background: linear-gradient(135deg, #a86820, #8b5a00);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-    }
-
-    .modal-btn-secondary {
-      background: transparent;
-      color: #2b1b0f;
-      border: 2px solid #c8832f;
-    }
-
-    .modal-btn-secondary:hover {
-      background: rgba(200, 131, 47, 0.1);
-    }
-
-    .controls {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 15px;
-      z-index: 50;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 15px 25px;
-      border-radius: 50px;
-      backdrop-filter: blur(10px);
-    }
-
-    .control-btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 25px;
-      background: linear-gradient(135deg, #c8832f, #a86820);
-      color: white;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.2s;
-      font-size: 14px;
-    }
-
-    .control-btn:hover {
-      background: linear-gradient(135deg, #a86820, #8b5a00);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
-    }
-
-    .route-line {
-      fill: none;
-      stroke: #f5d3a4;
-      stroke-width: 4;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
-      opacity: 0.85;
-    }
-
-    @media (max-width: 768px) {
-      .modal-content {
-        padding: 30px 20px;
-      }
-
-      .modal-title {
-        font-size: 22px;
-      }
-
-      .controls {
-        flex-direction: column;
-        bottom: 20px;
-        left: auto;
-        right: 20px;
-        transform: none;
-      }
-
-      .control-btn {
-        padding: 8px 16px;
-        font-size: 13px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive 3D Terrain Map</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
+        #info { position: absolute; top: 20px; left: 20px; background: white; padding: 10px; border-radius: 5px; }
+        #buttons { position: absolute; top: 60px; left: 20px; }
+    </style>
 </head>
 <body>
-  <div class="map-container">
-    <img src="map.jpg" alt="Карта наших сокровищ" class="map-image" id="mapImage">
-    <svg class="svg-overlay" id="svgOverlay"></svg>
-
-    <button class="marker" id="marker1" style="left: 36%; top: 30%;" data-title="1. Начало" data-text="Всё началось здесь" data-link="https://example.com/1">
-      <div class="marker-pin"></div>
-      <div class="marker-tooltip">1. Начало</div>
-    </button>
-
-    <button class="marker" id="marker2" style="left: 60%; top: 26%;" data-title="2. Встреча" data-text="Тот самый день" data-link="https://example.com/2">
-      <div class="marker-pin"></div>
-      <div class="marker-tooltip">2. Встреча</div>
-    </button>
-
-    <button class="marker" id="marker3" style="left: 44%; top: 55%;" data-title="3. Приключения" data-text="Наши яркие моменты" data-link="https://example.com/3">
-      <div class="marker-pin"></div>
-      <div class="marker-tooltip">3. Приключения</div>
-    </button>
-
-    <button class="marker" id="marker4" style="left: 68%; top: 58%;" data-title="4. Испытания" data-text="Мы справились" data-link="https://example.com/4">
-      <div class="marker-pin"></div>
-      <div class="marker-tooltip">4. Испытания</div>
-    </button>
-
-    <button class="marker" id="marker5" style="left: 50%; top: 78%;" data-title="5. Будущее" data-text="Впереди лучшее" data-link="https://example.com/5">
-      <div class="marker-pin"></div>
-      <div class="marker-tooltip">5. Будущее</div>
-    </button>
-  </div>
-
-  <div class="modal-overlay" id="modal">
-    <div class="modal-content">
-      <button class="modal-close" id="modalClose">&times;</button>
-      <h1 class="modal-title" id="modalTitle">Заголовок</h1>
-      <p class="modal-text" id="modalText">Описание</p>
-      <div class="modal-buttons">
-        <a class="modal-btn modal-btn-primary" id="modalLink" href="#" target="_blank">Перейти</a>
-        <button class="modal-btn modal-btn-secondary" id="modalCloseBtn">Закрыть</button>
-      </div>
+    <canvas id="terrainCanvas"></canvas>
+    <div id="info" style="display:none;"></div>
+    <div id="buttons">
+        <button id="showRoute">Show Route</button>
+        <button id="reset">Reset</button>
     </div>
-  </div>
+    <script>
+        const canvas = document.getElementById('terrainCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-  <div class="controls">
-    <button class="control-btn" id="toggleRoute">Показать маршрут</button>
-    <button class="control-btn" id="resetRoute">Сбросить</button>
-  </div>
+        const markers = [
+            { x: 100, y: 100, info: 'Marker 1' },
+            { x: 200, y: 150, info: 'Marker 2' },
+            { x: 300, y: 200, info: 'Marker 3' },
+            { x: 400, y: 250, info: 'Marker 4' },
+            { x: 500, y: 300, info: 'Marker 5' },
+        ];
 
-  <script>
-    const mapImage = document.getElementById('mapImage');
-    const svgOverlay = document.getElementById('svgOverlay');
-    const markers = Array.from(document.querySelectorAll('.marker'));
-    const modal = document.getElementById('modal');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalText = document.getElementById('modalText');
-    const modalLink = document.getElementById('modalLink');
-    const modalClose = document.getElementById('modalClose');
-    const modalCloseBtn = document.getElementById('modalCloseBtn');
-    const toggleRouteBtn = document.getElementById('toggleRoute');
-    const resetRouteBtn = document.getElementById('resetRoute');
+        let showRoute = false;
+        let routeProgress = 0;
 
-    let routeVisible = false;
-    let routePaths = [];
+        function drawTerrain() {
+            // Example terrain drawing
+            ctx.fillStyle = '#87CEEB'; // Sky
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    function openModal(marker) {
-      const title = marker.dataset.title;
-      const text = marker.dataset.text;
-      const link = marker.dataset.link;
+            ctx.fillStyle = '#A52A2A'; // Land
+            ctx.fillRect(0, canvas.height / 2, canvas.width, canvas.height / 2);
 
-      modalTitle.textContent = title;
-      modalText.textContent = text;
-      modalLink.href = link;
-      modal.classList.add('open');
-    }
+            // Draw rounded markers
+            markers.forEach(marker => {
+                ctx.beginPath();
+                ctx.arc(marker.x, marker.y, 10, 0, Math.PI * 2, true);
+                ctx.fillStyle = 'gold';
+                ctx.fill();
+            });
+        }
 
-    function closeModal() {
-      modal.classList.remove('open');
-    }
+        drawTerrain();
 
-    markers.forEach(marker => {
-      marker.addEventListener('click', () => {
-        openModal(marker);
-      });
-    });
+        function drawRoute() {
+            if (showRoute) {
+                const startMarker = markers[0];
+                const endMarker = markers[1]; // Example from first to second marker
+                ctx.beginPath();
+                ctx.setLineDash([5, 15]);
+                ctx.moveTo(startMarker.x, startMarker.y);
+                const endX = startMarker.x + (endMarker.x - startMarker.x) * (routeProgress / 100);
+                const endY = startMarker.y + (endMarker.y - startMarker.y) * (routeProgress / 100);
+                ctx.lineTo(endX, endY);
+                ctx.strokeStyle = 'red';
+                ctx.stroke();
+                routeProgress += 1;
+                if (routeProgress > 100) {
+                    routeProgress = 0; // Reset progress
+                    showRoute = false;
+                }
+                requestAnimationFrame(drawRoute);
+            }
+        }
 
-    modalClose.addEventListener('click', closeModal);
-    modalCloseBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
-    });
+        document.getElementById('showRoute').onclick = function() {
+            showRoute = true;
+            routeProgress = 0;
+            drawRoute();
+        };
 
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeModal();
-    });
+        document.getElementById('reset').onclick = function() {
+            routeProgress = 0;
+            showRoute = false;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawTerrain();
+        };
 
-    function drawRoute() {
-      svgOverlay.innerHTML = '';
-      routePaths = [];
-
-      for (let i = 0; i < markers.length - 1; i++) {
-        const m1 = markers[i];
-        const m2 = markers[i + 1];
-
-        const x1 = (parseFloat(m1.style.left) / 100) * window.innerWidth;
-        const y1 = (parseFloat(m1.style.top) / 100) * window.innerHeight;
-        const x2 = (parseFloat(m2.style.left) / 100) * window.innerWidth;
-        const y2 = (parseFloat(m2.style.top) / 100) * window.innerHeight;
-
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('class', 'route-line');
-
-        const midX = (x1 + x2) / 2;
-        const midY = (y1 + y2) / 2 - 60;
-
-        const d = `M ${x1} ${y1} Q ${midX} ${midY} ${x2} ${y2}`;
-        path.setAttribute('d', d);
-
-        svgOverlay.appendChild(path);
-        routePaths.push(path);
-      }
-
-      animateRoute();
-    }
-
-    function animateRoute() {
-      routePaths.forEach((path, index) => {
-        const length = path.getTotalLength();
-        path.style.strokeDasharray = length;
-        path.style.strokeDashoffset = length;
-        path.style.transition = `stroke-dashoffset 1s ease-in-out ${index * 0.3}s`;
-        
-        setTimeout(() => {
-          path.style.strokeDashoffset = 0;
-        }, index * 300);
-      });
-    }
-
-    toggleRouteBtn.addEventListener('click', () => {
-      routeVisible = !routeVisible;
-      if (routeVisible) {
-        toggleRouteBtn.textContent = 'Скрыть маршрут';
-        drawRoute();
-      } else {
-        toggleRouteBtn.textContent = 'Показать маршрут';
-        svgOverlay.innerHTML = '';
-      }
-    });
-
-    resetRouteBtn.addEventListener('click', () => {
-      svgOverlay.innerHTML = '';
-      routeVisible = false;
-      toggleRouteBtn.textContent = 'Показать маршрут';
-    });
-
-    window.addEventListener('resize', () => {
-      if (routeVisible) {
-        drawRoute();
-      }
-    });
-  </script>
+        markers.forEach(marker => {
+            ctx.canvas.addEventListener('click', function(e) {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                const dx = mouseX - marker.x;
+                const dy = mouseY - marker.y;
+                if (Math.sqrt(dx * dx + dy * dy) < 10) {
+                    const infoDiv = document.getElementById('info');
+                    infoDiv.style.display = 'block';
+                    infoDiv.innerHTML = `<p>${marker.info}</p><button onclick='this.parentElement.style.display="none"'>Back</button>`;
+                }
+            });
+        });
+    </script>
 </body>
 </html>
