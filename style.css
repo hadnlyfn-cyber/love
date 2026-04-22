@@ -9,7 +9,7 @@ body {
   margin: 0;
 }
 
-.intro, .game, .video-container {
+.intro, .game {
   display: none;
   text-align: center;
 }
@@ -49,13 +49,4 @@ body {
   transform: translate(-50%, -50%);
   width: 100px; /* Размер PNG */
   cursor: pointer;
-}
-
-.video-container {
-  display: none;
-}
-
-#loveVideo {
-  width: 100%;
-  max-width: 500px;
 }
