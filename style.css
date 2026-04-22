@@ -1,0 +1,61 @@
+/* Основной стиль */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.intro, .game, .video-container {
+  display: none;
+  text-align: center;
+}
+
+.hearts {
+  display: flex;
+  justify-content: center;
+}
+
+.heart {
+  width: 50px;
+  margin: 10px;
+}
+
+.start-btn {
+  background-color: #ff5b5b;
+  color: white;
+  font-size: 24px;
+  padding: 15px 30px;
+  border: none;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.game-image {
+  width: 80%;
+  max-width: 600px;
+  margin-top: 20px;
+  border: 2px solid #ff5b5b;
+  border-radius: 10px;
+}
+
+.clickable {
+  position: absolute;
+  top: 50%;  /* Отрегулируй для точного положения */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px; /* Размер PNG */
+  cursor: pointer;
+}
+
+.video-container {
+  display: none;
+}
+
+#loveVideo {
+  width: 100%;
+  max-width: 500px;
+}
