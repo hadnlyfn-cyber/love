@@ -28,3 +28,4 @@ document.getElementById("clickableImage").addEventListener("click", function() {
     // Здесь можно добавить переход на следующий этап
   };
 });
+console.log("JS загружен!");
