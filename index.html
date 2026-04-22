@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Поиск по следам любви</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Интро экран -->
+  <div id="intro" class="intro">
+    <div class="hearts">
+      <img src="heart.png" alt="Heart" class="heart">
+      <img src="heart.png" alt="Heart" class="heart">
+      <img src="heart.png" alt="Heart" class="heart">
+    </div>
+    <button id="startBtn" class="start-btn">For My Love</button>
+  </div>
+
+  <!-- Экран с заданием и картинкой -->
+  <div id="game" class="game">
+    <h2>Ты сидела на мне, ждав его. Найди меня!</h2>
+    <img src="first.jpg" alt="First" class="game-image">
+    <img src="second.png" alt="Second" class="clickable" id="clickableImage">
+  </div>
+
+  <!-- Видео, которое появляется после клика -->
+  <div id="videoContainer" class="video-container">
+    <video id="loveVideo" width="320" height="240" controls>
+      <source src="love_video.mp4" type="video/mp4">
+      Ваш браузер не поддерживает видео.
+    </video>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
