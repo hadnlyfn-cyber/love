@@ -36,11 +36,13 @@
     </style>
 </head>
 <body>
-    <canvas id="terrainCanvas"></canvas>
-    <div id="info" style="display:none;"></div>
+    <!-- Map container: поместите файл карты в ту же папку и назовите map.jpg -->
+    <div id="mapContainer">
+        <img id="mapImage" src="map.jpg" alt="Map" />
+        <!-- Маркеры будут вставлены сюда динамически -->
+    </div>
     <div id="buttons">
-        <button id="showRoute">Show Route</button>
-        <button id="reset">Reset</button>
+        <button id="showRoute" style="display:none">Show Route</button>
     </div>
     <!-- Slide overlay shown when clicking a marker -->
     <div id="slideOverlay">
@@ -151,34 +153,79 @@
             showSlide(idx);
         });
         document.getElementById('nextSlide').addEventListener('click', function() {
-            const idx = (currentSlideIndex + 1) % markers.length;
-            showSlide(idx);
-        });
+            <script>
+                // Позиции маркеров заданы в процентах относительно изображения.
+                // Отредактируйте значения left/top под вашу карту для точного попадания.
+                const markers = [
+                    { left: '21%', top: '22%', title: '1. Начало', slide: { title: 'Начало', body: '<p>Всё началось здесь — тёплые воспоминания.</p>' } },
+                    { left: '55%', top: '18%', title: '2. Встреча', slide: { title: 'Встреча', body: '<p>Тот самый день — первый наш разговор.</p>' } },
+                    { left: '38%', top: '55%', title: '3. Приключения', slide: { title: 'Приключения', body: '<p>Наши яркие моменты и совместные путешествия.</p>' } },
+                    { left: '70%', top: '48%', title: '4. Испытания', slide: { title: 'Испытания', body: '<p>Мы справлялись вместе — и это сделало нас сильнее.</p>' } },
+                    { left: '55%', top: '78%', title: '5. Будущее', slide: { title: 'Будущее', body: '<p>Вперёд к лучшему — планы и мечты.</p>' } },
+                ];
 
-        // click handler on canvas checks all markers
-        ctx.canvas.addEventListener('click', function(e) {
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-            for (let i = 0; i < markers.length; i++) {
-                const marker = markers[i];
-                const dx = mouseX - marker.x;
-                const dy = mouseY - marker.y;
-                if (Math.sqrt(dx * dx + dy * dy) < 12) {
-                    showSlide(i);
-                    return;
+                const mapContainer = document.getElementById('mapContainer');
+                const mapImage = document.getElementById('mapImage');
+
+                // Создаём DOM-элементы маркеров
+                markers.forEach((m, i) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'map-marker';
+                    btn.innerHTML = (i+1);
+                    btn.style.position = 'absolute';
+                    btn.style.left = m.left;
+                    btn.style.top = m.top;
+                    btn.style.transform = 'translate(-50%, -50%)';
+                    btn.style.width = '34px';
+                    btn.style.height = '34px';
+                    btn.style.borderRadius = '50%';
+                    btn.style.border = '2px solid #704b2b';
+                    btn.style.background = 'gold';
+                    btn.style.cursor = 'pointer';
+                    btn.style.zIndex = 5;
+                    btn.dataset.index = i;
+                    btn.title = m.title;
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        showSlide(parseInt(this.dataset.index, 10));
+                    });
+                    mapContainer.appendChild(btn);
+                });
+
+                // Slide overlay logic
+                let currentSlideIndex = 0;
+                function showSlide(index) {
+                    currentSlideIndex = index;
+                    const marker = markers[index];
+                    document.getElementById('slideTitle').innerText = marker.slide.title;
+                    document.getElementById('slideBody').innerHTML = marker.slide.body;
+                    document.getElementById('slideOverlay').style.display = 'flex';
                 }
-            }
-        });
+                function closeSlide() {
+                    document.getElementById('slideOverlay').style.display = 'none';
+                }
+                document.getElementById('closeSlide').addEventListener('click', closeSlide);
+                document.getElementById('prevSlide').addEventListener('click', function() {
+                    const idx = (currentSlideIndex - 1 + markers.length) % markers.length;
+                    showSlide(idx);
+                });
+                document.getElementById('nextSlide').addEventListener('click', function() {
+                    const idx = (currentSlideIndex + 1) % markers.length;
+                    showSlide(idx);
+                });
 
-        // keyboard navigation: Esc to close, arrows to navigate
-        document.addEventListener('keydown', function(e) {
-            if (document.getElementById('slideOverlay').style.display === 'flex') {
-                if (e.key === 'Escape') closeSlide();
-                if (e.key === 'ArrowLeft') document.getElementById('prevSlide').click();
-                if (e.key === 'ArrowRight') document.getElementById('nextSlide').click();
-            }
-        });
-    </script>
-</body>
-</html>
+                // Закрывать Esc, навигация стрелками
+                document.addEventListener('keydown', function(e) {
+                    const overlay = document.getElementById('slideOverlay');
+                    if (overlay.style.display === 'flex') {
+                        if (e.key === 'Escape') closeSlide();
+                        if (e.key === 'ArrowLeft') document.getElementById('prevSlide').click();
+                        if (e.key === 'ArrowRight') document.getElementById('nextSlide').click();
+                    }
+                });
+
+                // Клик вне маркера закрывает слайд
+                document.getElementById('slideOverlay').addEventListener('click', function(e) {
+                    if (e.target === this) closeSlide();
+                });
+            </script>
