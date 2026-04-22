@@ -23,9 +23,12 @@ body {
   opacity: 0.6; /* Прозрачность картинки */
 }
 
+/* Центрируем кнопку "For My Love" */
 .start-btn {
-  position: absolute; /* Оставляем кнопке абсолютное позиционирование */
-  bottom: 50px; /* Немного поднимем кнопку, чтобы не касалась нижнего края */
+  position: absolute;  /* Кнопка будет поверх картинки */
+  top: 50%;  /* Центрируем по вертикали */
+  left: 50%; /* Центрируем по горизонтали */
+  transform: translate(-50%, -50%);  /* Точно выравниваем по центру */
   padding: 20px 40px;
   font-size: 26px;
   font-weight: bold;
@@ -40,12 +43,12 @@ body {
 }
 
 .start-btn:hover {
-  transform: scale(1.1); /* Увеличение кнопки при наведении */
+  transform: translate(-50%, -50%) scale(1.1); /* Увеличение кнопки при наведении */
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); /* Тень при наведении */
 }
 
 .start-btn:active {
-  transform: scale(0.95); /* Сжатие кнопки при клике */
+  transform: translate(-50%, -50%) scale(0.95); /* Сжатие кнопки при клике */
 }
 
 .game {
