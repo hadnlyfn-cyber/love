@@ -24,7 +24,9 @@ body {
 }
 
 .start-btn {
-  position: absolute;
+  position: absolute; /* Оставляем кнопке абсолютное позиционирование */
+  bottom: 50px; /* Немного поднимем кнопку, чтобы не касалась нижнего края */
+  padding: 20px 40px;
   font-size: 26px;
   font-weight: bold;
   border: none;
@@ -35,7 +37,6 @@ body {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Тень для кнопки */
   transition: all 0.3s ease;
   text-transform: uppercase;
-  padding: 20px 40px;
 }
 
 .start-btn:hover {
