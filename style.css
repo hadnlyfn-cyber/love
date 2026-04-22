@@ -9,19 +9,14 @@ body {
   margin: 0;
 }
 
-.intro, .game {
-  display: none;
+.start-screen, .game {
   text-align: center;
 }
 
-.hearts {
-  display: flex;
-  justify-content: center;
-}
-
-.heart {
-  width: 50px;
-  margin: 10px;
+.start-image {
+  width: 80%;
+  max-width: 600px;
+  margin-bottom: 20px;
 }
 
 .start-btn {
@@ -31,7 +26,6 @@ body {
   padding: 15px 30px;
   border: none;
   cursor: pointer;
-  margin-top: 20px;
 }
 
 .game-image {
@@ -44,9 +38,9 @@ body {
 
 .clickable {
   position: absolute;
-  top: 50%;  /* Отрегулируй для точного положения */
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 100px; /* Размер PNG */
+  width: 100px;
   cursor: pointer;
 }
